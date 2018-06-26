@@ -1,8 +1,8 @@
 ### This project is about how to use mysql as storage backend for Vault
 
-Status: **in development**
+Status: **ready for demonstrate**
 
-Vault is launched in production mode
+**Hashicorp Vault** is launched in production mode and it uses **mysql** as backend storage.
 
 ### Usage
 
@@ -25,6 +25,9 @@ will see smth like next:
 ```
 $ docker-compose logs vault
 Attaching to vault-with-mysql-integration_vault_1
+vault_1  | Running 00-prepare-config.
+vault_1  | Running 01-waiting-for-mysql.
+vault_1  | .
 vault_1  | ==> Vault server configuration:
 vault_1  |
 vault_1  |                      Cgo: disabled

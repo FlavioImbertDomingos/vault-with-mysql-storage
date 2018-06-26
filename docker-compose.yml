@@ -1,0 +1,46 @@
+version: "3"
+services:
+
+  vault:
+    image: vault
+    command: server -config=/config.hcl
+    environment:
+      - SKIP_SETCAP=true
+      - MYSQL_HOSTNAME=mysql
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-vault}
+      - MYSQL_USER=${MYSQL_USER:-vault}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-vault}
+    volumes:
+      - ./config/vault.hcl:/config.hcl:ro
+    depends_on:
+      - mysql
+    ports:
+      - "${VAULT_PORT:-8200}:8200"
+    networks:
+      - vault_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "5"
+
+  mysql:
+    image: mysql
+    networks:
+      - vault_net
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-password}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-vault}
+      - MYSQL_USER=${MYSQL_USER:-vault}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-vault}
+    networks:
+      - vault_net
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10M"
+        max-file: "5"
+
+networks:
+  vault_net:
+    driver: bridge

@@ -1,0 +1,10 @@
+#!/bin/bash -e
+
+echo "Running $(basename $0)."
+
+if [ ! -z "${CONFIG_TEMPLATE}" ] && [ -e "${CONFIG_TEMPLATE}" ]; then
+  cat ${CONFIG_TEMPLATE} | envsubst > ${CONFIG_FILE}
+else
+  echo "Error! Check the config template!"
+  exit 1
+fi

@@ -2,20 +2,28 @@ version: "3"
 services:
 
   vault:
-    image: vault
+    build:
+      dockerfile: Dockerfile.vault
+      context: .
     command: server -config=/config.hcl
     environment:
-      - SKIP_SETCAP=true
       - MYSQL_HOSTNAME=mysql
+      - MYSQL_PORT=3306
       - MYSQL_DATABASE=${MYSQL_DATABASE:-vault}
       - MYSQL_USER=${MYSQL_USER:-vault}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-vault}
+      - CONFIG_FILE=/config.hcl
+      - CONFIG_TEMPLATE=/config.hcl.tmpl
     volumes:
-      - ./config/vault.hcl:/config.hcl:ro
+      - ./config/vault.hcl.tmpl:/config.hcl.tmpl:ro
+      - ./docker-entrypoint.d:/docker-entrypoint.d:ro
     depends_on:
       - mysql
     ports:
       - "${VAULT_PORT:-8200}:8200"
+    cap_add:
+      - IPC_LOCK
+    restart: unless-stopped
     networks:
       - vault_net
     logging:
@@ -25,7 +33,8 @@ services:
         max-file: "5"
 
   mysql:
-    image: mysql
+    image: mysql:5.7
+    command: --character-set-server=utf8 --collation-server=utf8_general_ci
     networks:
       - vault_net
     environment:
@@ -33,6 +42,9 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE:-vault}
       - MYSQL_USER=${MYSQL_USER:-vault}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-vault}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    restart: unless-stopped
     networks:
       - vault_net
     logging:

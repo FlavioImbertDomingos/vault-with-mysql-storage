@@ -1,0 +1,32 @@
+#!/bin/bash -e
+
+echo "Running $(basename $0)."
+
+function wait_for() {
+  HOSTNAME=$1
+  PORT=$2
+  IS_READY=false
+  MAX_WAIT_TIMEOUT=120
+  SLEEP_TIMEOUT=1
+  I=0
+  set +e
+  while [ $IS_READY == false ]; do
+      nc -z -w 1 ${HOSTNAME} ${PORT}
+      [ $? == 0 ] && IS_READY=true
+      printf "."
+      sleep ${SLEEP_TIMEOUT}
+      let I=${I}+${SLEEP_TIMEOUT}
+      if [ ${I} -eq ${MAX_WAIT_TIMEOUT} ]; then
+          echo
+          echo "Max wait timeout of waiting was exceeded."
+          exit 1
+      fi
+  done
+}
+
+if [ ! -z "${MYSQL_HOSTNAME}" ] && [ ! -z "${MYSQL_PORT}" ]; then
+    wait_for ${MYSQL_HOSTNAME} ${MYSQL_PORT}
+    echo
+else
+  echo "Error! Check MySQL variables."
+fi

@@ -1,0 +1,17 @@
+FROM vault:0.10.3
+
+LABEL maintainer="devops@onix-systems.com"
+
+ENV MYSQL_HOSTNAME=localhost \
+    MYSQL_USER=user \
+    MYSQL_PASSWORD=password \
+    MYSQL_DATABASE=databases
+
+RUN apk update && \
+    apk add --no-cache \
+      bash \
+      gettext && \
+    mkdir -p /docker-entrypoint.d && \
+    sed -i "/set -e/a run-parts /docker-entrypoint.d" $(which docker-entrypoint.sh)
+
+COPY ./config/vault.hcl.tmpl /config.hcl.tmpl
